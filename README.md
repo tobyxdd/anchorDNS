@@ -1,7 +1,5 @@
 # anchorDNS ![adnsLogo][1]
 
-------
-
 **anchorDNS** ÊÇÒ»¸öÔËÐÐÔÚ±¾µØµÄ·ÖÁ÷DNS·þÎñÆ÷
 
 #ÕâÄÜ¸ÉÉ¶£¿
@@ -35,6 +33,8 @@ anchorDNS ÕýÊÇÎª½â¾ö´ËÎÊÌâ¶øÉè¼Æ£¬Í¨¹ýÏÈ´Ó¹úÄÚDNS½âÎöÓòÃû£¬Èô·¢ÏÖÊÇÖÐ¹úIPÔòÖ±½Ó·
     -r ·´Ä£Ê½£ºÓÅÏÈ²éÑ¯¹úÍâDNS ·¢ÏÖÖÐ¹úIPºóÔÙ¸ÄÓÃ¹úÄÚDNS **£¨²»½¨ÒéÊ¹ÓÃ£¡£©**
 
 ±ÈÈç£º `anchorDNS -d 114.114.114.114 -a 8.8.8.8 -c ChinaCIDR.txt`
+
+**È»ºóÉèÖÃ»úÆ÷µÄDNS·þÎñÆ÷Îª 127.0.0.1 £¡**
 
 #¼¼ÊõÏ¸½Ú
 
