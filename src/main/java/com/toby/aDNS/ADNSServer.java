@@ -57,6 +57,7 @@ public class ADNSServer extends SimpleChannelInboundHandler<DatagramPacket> {
             Message cm = DNSMessageCache.get(record.hashCode());
             if (cm != null) {
                 SimpleLog.log("Using cached result.");
+                cm.getHeader().setID(dnsMsg.getHeader().getID());
                 writeResult(ctx, record, cm, msg, false);
                 return;
             }
