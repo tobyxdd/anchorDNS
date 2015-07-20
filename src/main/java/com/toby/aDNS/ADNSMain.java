@@ -32,6 +32,11 @@ public class ADNSMain {
                 Bootstrap b = new Bootstrap();
                 boolean rm = commandLine.hasOption("r");
                 if (rm) SimpleLog.log("Reverse mode enabled.");
+                if(commandLine.hasOption("n"))
+                {
+                    DNSMessageCache.enabled=false;
+                    SimpleLog.log("Cache disabled.");
+                }
                 String defDNS = commandLine.getOptionValue("d"), altDNS = commandLine.getOptionValue("a");
                 b.group(group).channel(NioDatagramChannel.class).handler(new ADNSServer(defDNS, altDNS, cidrs.toArray(new String[cidrs.size()]),
                         rm, commandLine.hasOption("t") ? Integer.parseInt(commandLine.getOptionValue("t")) : 2));
