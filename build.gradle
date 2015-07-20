@@ -1,5 +1,5 @@
 group 'com.toby.toys'
-version '1.0'
+version '1.1'
 
 apply plugin: 'java'
 apply plugin: 'application'
@@ -22,13 +22,13 @@ dependencies {
 }
 
 run {
-    if ( project.hasProperty("appArgs") ) {
+    if (project.hasProperty("appArgs")) {
         args Eval.me(appArgs)
     }
 }
 
 distZip {
-    into(project.name+"-"+project.version+"/bin") {
+    into(project.name + "-" + project.version + "/bin") {
         from '.'
         include 'ChinaCIDR.txt'
     }

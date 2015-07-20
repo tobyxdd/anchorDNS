@@ -26,11 +26,15 @@ anchorDNS ÕıÊÇÎª½â¾ö´ËÎÊÌâ¶øÉè¼Æ£¬Í¨¹ıÏÈ´Ó¹úÄÚDNS½âÎöÓòÃû£¬Èô·¢ÏÖÊÇÖĞ¹úIPÔòÖ±½Ó·
      -d,--defaultDNS <arg>       Specify the default DNS server.
      -h,--help                   Show this help message.
      -r,--reverse                Check the alternative DNS first.
+     -n,--nocache                Disable results cache.
+     -t,--timeout <arg>          Specify the DNS time out (sec). Default: 2
 
     -a Ö¸¶¨¹úÍâDNS·şÎñÆ÷
     -d Ö¸¶¨¹úÄÚDNS·şÎñÆ÷
     -c Ö¸¶¨ÖĞ¹úIP CIDR±í£¨¿ÉÓÃ±¾ÏîÄ¿ÏÂµÄ **ChinaCIDR.txt** »ò [´Ë´¦ÏÂÔØ×îĞÂ°æ][3]£©
     -r ·´Ä£Ê½£ºÓÅÏÈ²éÑ¯¹úÍâDNS ·¢ÏÖÖĞ¹úIPºóÔÙ¸ÄÓÃ¹úÄÚDNS **£¨²»½¨ÒéÊ¹ÓÃ£¡£©**
+    -n ½ûÓÃ²éÑ¯»º´æ
+    -t DNS²éÑ¯³¬Ê±Ê±¼ä µ¥Î»£ºÃë Ä¬ÈÏÎª2
 
 ±ÈÈç£º `anchorDNS -d 114.114.114.114 -a 8.8.8.8 -c ChinaCIDR.txt`
 
