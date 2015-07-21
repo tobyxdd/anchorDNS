@@ -41,7 +41,10 @@ public class ADNSMain {
                 b.group(group).channel(NioDatagramChannel.class).handler(new ADNSServer(defDNS, altDNS, cidrs.toArray(new String[cidrs.size()]),
                         rm, commandLine.hasOption("t") ? Integer.parseInt(commandLine.getOptionValue("t")) : 2));
                 SimpleLog.log("Up and running. (" + defDNS + "/" + altDNS + ")");
-                b.bind("127.0.0.1", 53).sync().channel().closeFuture().await();
+                String serverName = commandLine.getOptionValue("s") || "127.0.0.1";
+                String serverPort = commandLine.getOptionValue("p") || 53;
+                b.bind(serverName, serverPort).sync().channel().closeFuture().await();
+                SimpleLog.log("anchorDNS is running on " + serverName + ":" + serverPort);
             } catch (InterruptedException e) {
                 SimpleLog.log("Interrupted.");
             } catch (UnknownHostException e) {
@@ -68,6 +71,8 @@ public class ADNSMain {
 
     private static Options createOptions() {
         Options options = new Options();
+        options.addOption(Option.builder("s").longOpt("server").hasArg().desc("Specify the anchorDNS DNS server name.").required().build());
+        options.addOption(Option.builder("p").longOpt("serverPort").hasArg().desc("Specify the anchorDNS DNS server port.").required().build());
         options.addOption(Option.builder("d").longOpt("defaultDNS").hasArg().desc("Specify the default DNS server.").required().build());
         options.addOption(Option.builder("a").longOpt("alternativeDNS").hasArg().desc("Specify the alternative DNS server.").required().build());
         options.addOption(Option.builder("r").longOpt("reverse").desc("Check the alternative DNS first.").build());
