@@ -39,7 +39,7 @@ public class ADNSMain {
                 String defDNS = commandLine.getOptionValue("d"), altDNS = commandLine.getOptionValue("a");
                 b.group(group).channel(NioDatagramChannel.class).handler(new ADNSServer(defDNS, altDNS, cidrs.toArray(new String[cidrs.size()]),
                         rm, commandLine.hasOption("t") ? Integer.parseInt(commandLine.getOptionValue("t")) : 2));
-                SimpleLog.log("Up and running. (" + defDNS + "/" + altDNS + ")");
+                SimpleLog.log("Using DNS " + defDNS + "/" + altDNS);
                 String serverName = commandLine.getOptionValue("i", "127.0.0.1");
                 String serverPort = commandLine.getOptionValue("p", "53");
                 SimpleLog.log("Up and running on " + serverName + ":" + serverPort);
