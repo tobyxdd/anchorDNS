@@ -32,19 +32,18 @@ public class ADNSMain {
                 Bootstrap b = new Bootstrap();
                 boolean rm = commandLine.hasOption("r");
                 if (rm) SimpleLog.log("Reverse mode enabled.");
-                if(commandLine.hasOption("n"))
-                {
-                    DNSMessageCache.enabled=false;
+                if (commandLine.hasOption("n")) {
+                    DNSMessageCache.enabled = false;
                     SimpleLog.log("Cache disabled.");
                 }
                 String defDNS = commandLine.getOptionValue("d"), altDNS = commandLine.getOptionValue("a");
                 b.group(group).channel(NioDatagramChannel.class).handler(new ADNSServer(defDNS, altDNS, cidrs.toArray(new String[cidrs.size()]),
                         rm, commandLine.hasOption("t") ? Integer.parseInt(commandLine.getOptionValue("t")) : 2));
                 SimpleLog.log("Up and running. (" + defDNS + "/" + altDNS + ")");
-                String serverName = commandLine.getOptionValue("s") || "127.0.0.1";
-                String serverPort = commandLine.getOptionValue("p") || 53;
-                b.bind(serverName, serverPort).sync().channel().closeFuture().await();
-                SimpleLog.log("anchorDNS is running on " + serverName + ":" + serverPort);
+                String serverName = commandLine.getOptionValue("i", "127.0.0.1");
+                String serverPort = commandLine.getOptionValue("p", "53");
+                SimpleLog.log("Up and running on " + serverName + ":" + serverPort);
+                b.bind(serverName, Integer.parseInt(serverPort)).sync().channel().closeFuture().await();
             } catch (InterruptedException e) {
                 SimpleLog.log("Interrupted.");
             } catch (UnknownHostException e) {
@@ -71,8 +70,8 @@ public class ADNSMain {
 
     private static Options createOptions() {
         Options options = new Options();
-        options.addOption(Option.builder("s").longOpt("server").hasArg().desc("Specify the anchorDNS DNS server name.").required().build());
-        options.addOption(Option.builder("p").longOpt("serverPort").hasArg().desc("Specify the anchorDNS DNS server port.").required().build());
+        options.addOption(Option.builder("i").longOpt("ip").hasArg().desc("Specify the listening IP. Default: 127.0.0.1").build());
+        options.addOption(Option.builder("p").longOpt("port").hasArg().desc("Specify the listening port. Default: 53").build());
         options.addOption(Option.builder("d").longOpt("defaultDNS").hasArg().desc("Specify the default DNS server.").required().build());
         options.addOption(Option.builder("a").longOpt("alternativeDNS").hasArg().desc("Specify the alternative DNS server.").required().build());
         options.addOption(Option.builder("r").longOpt("reverse").desc("Check the alternative DNS first.").build());
