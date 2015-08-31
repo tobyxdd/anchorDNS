@@ -84,6 +84,7 @@ public class ADNSServer extends SimpleChannelInboundHandler<DatagramPacket> {
     }
 
     private boolean useAltDNS(Record[] records) {
+        if (records.length == 0) return true;
         ArrayList<ARecord> aRecords = new ArrayList<ARecord>();
         for (Record r : records) {
             if (r instanceof ARecord) aRecords.add((ARecord) r);
