@@ -10,40 +10,19 @@ import org.xbill.DNS.*;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class ADNSServer extends SimpleChannelInboundHandler<DatagramPacket> {
 
     private String defaultDNS_IP, alternativeDNS_IP;
     private String[] CIDRs;
-    private boolean reverse;
+    private int timeout;
 
-    private SimpleResolver defResolver, altResolver;
-
-    public ADNSServer(String defaultDNS_IP, String alternativeDNS_IP, String[] CIDRs, boolean reverse, int timeout) throws UnknownHostException {
+    public ADNSServer(String defaultDNS_IP, String alternativeDNS_IP, String[] CIDRs, int timeout) throws UnknownHostException {
         this.defaultDNS_IP = defaultDNS_IP;
         this.alternativeDNS_IP = alternativeDNS_IP;
         this.CIDRs = CIDRs;
-        this.reverse = reverse;
-        defResolver = new SimpleResolver(defaultDNS_IP);
-        altResolver = new SimpleResolver(alternativeDNS_IP);
-        defResolver.setTCP(false);
-        defResolver.setTimeout(timeout);
-        altResolver.setTCP(false);
-        altResolver.setTimeout(timeout);
-    }
-
-    private Message resolve(Message dnsQuestion, boolean useAlt) {
-        try {
-            Message msg;
-            if (useAlt)
-                msg = altResolver.send(dnsQuestion);
-            else
-                msg = defResolver.send(dnsQuestion);
-            return msg;
-        } catch (IOException e) {
-            return null;
-        }
-
+        this.timeout = timeout;
     }
 
     @Override
@@ -53,62 +32,45 @@ public class ADNSServer extends SimpleChannelInboundHandler<DatagramPacket> {
         Message dnsMsg = new Message(bytes);
         Record record = dnsMsg.getQuestion();
         if (record != null) {
-            SimpleLog.log("Resolving " + record.getName() + " (" + Type.string(record.getType()) + ") via " + (reverse ? alternativeDNS_IP : defaultDNS_IP));
+            SimpleLog.log("Resolving " + record.getName() + " (" + Type.string(record.getType()) + ")");
             Message cm = DNSMessageCache.get(record.hashCode());
             if (cm != null) {
-                SimpleLog.log("Using cached result.");
+                SimpleLog.log("Using cached result for " + record.getName());
                 cm.getHeader().setID(dnsMsg.getHeader().getID());
                 writeResult(ctx, record, cm, msg, false);
                 return;
             }
-            Message dnsResult;
-            dnsResult = resolve(dnsMsg, reverse);
-            if (dnsResult != null) {
-                Record[] resultRecords = dnsResult.getSectionArray(Section.ANSWER);
-                if (resultRecords.length != 0) {
-                    boolean useAlt = !reverse;
-                    SubnetUtils subnetUtils;
-                    ol:
-                    for (Record rr : resultRecords) {
-                        if (rr instanceof ARecord) {
-                            String ipaddr = ((ARecord) rr).getAddress().getHostAddress();
-                            for (String cidrblock : CIDRs) {
-                                subnetUtils = new SubnetUtils(cidrblock);
-                                if (subnetUtils.getInfo().isInRange(ipaddr)) {
-                                    if (!reverse)
-                                        useAlt = false;
-                                    else
-                                        useAlt = true;
-                                    break ol;
-                                }
-                            }
-                        }
-                    }
-                    if (!useAlt) {
-                        SimpleLog.log("Resolved IPs are " + (reverse ? "not " : "") + "included in CIDRs.");
-                        writeResult(ctx, record, dnsResult, msg, true);
-                    } else {
-                        SimpleLog.log("Resolved IPs are " + (reverse ? "" : "not ") + "included in CIDRs. Switching to " + (reverse ? defaultDNS_IP : alternativeDNS_IP));
-                        Message altDNSResult;
-                        altDNSResult = resolve(dnsMsg, !reverse);
-                        if (altDNSResult != null) writeResult(ctx, record, altDNSResult, msg, true);
-                    }
+            Message ddnsResult, adnsResult;
+            DNSResolver ddnsRunnable = new DNSResolver(timeout, dnsMsg, defaultDNS_IP), adnsRunnable = new DNSResolver(timeout, dnsMsg, alternativeDNS_IP);
+            Thread ddnsThread = new Thread(ddnsRunnable);
+            Thread adnsThread = new Thread(adnsRunnable);
+            ddnsThread.start();
+            adnsThread.start();
+            ddnsThread.join();
+            ddnsResult = ddnsRunnable.getRmsg();
+            if (ddnsResult != null) {
+                Record[] ddnsRecords = ddnsResult.getSectionArray(Section.ANSWER);
+                if (useAltDNS(ddnsRecords)) {
+                    SimpleLog.log("Using alternative DNS for " + record.getName());
+                    adnsThread.join();
+                    adnsResult = adnsRunnable.getRmsg();
+                    writeResult(ctx, record, adnsResult, msg, true);
                 } else {
-                    SimpleLog.log("No record for " + record.getName());
-                    writeResult(ctx, record, dnsResult, msg, true);
+                    SimpleLog.log("Using default DNS for " + record.getName());
+                    writeResult(ctx, record, ddnsResult, msg, true);
                 }
             } else {
-                SimpleLog.log("Lookup failed. Switching to " + (reverse ? defaultDNS_IP : alternativeDNS_IP));
-                Message altDNSResult;
-                altDNSResult = resolve(dnsMsg, !reverse);
-                if (altDNSResult != null) writeResult(ctx, record, altDNSResult, msg, true);
+                SimpleLog.log("Falling back to alternative DNS for " + record.getName());
+                adnsThread.join();
+                adnsResult = adnsRunnable.getRmsg();
+                writeResult(ctx, record, adnsResult, msg, false);
             }
         }
     }
 
     private void writeResult(ChannelHandlerContext ctx, Record question, Message dnsResult, DatagramPacket msg, boolean writeCache) {
         if (writeCache) DNSMessageCache.put(question.hashCode(), dnsResult);
-        ctx.write(new DatagramPacket(Unpooled.copiedBuffer(dnsResult.toWire()), msg.sender()));
+        if (dnsResult != null) ctx.write(new DatagramPacket(Unpooled.copiedBuffer(dnsResult.toWire()), msg.sender()));
     }
 
     @Override
@@ -118,7 +80,21 @@ public class ADNSServer extends SimpleChannelInboundHandler<DatagramPacket> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (!(cause instanceof SocketTimeoutException)) cause.printStackTrace();
-        else SimpleLog.log("Lookup timed out.");
+        SimpleLog.log("An error occurred: " + cause.toString());
+    }
+
+    private boolean useAltDNS(Record[] records) {
+        ArrayList<ARecord> aRecords = new ArrayList<ARecord>();
+        for (Record r : records) {
+            if (r instanceof ARecord) aRecords.add((ARecord) r);
+        }
+        if (aRecords.size() == 0) return false;
+        for (String cidr : CIDRs) {
+            SubnetUtils su = new SubnetUtils(cidr);
+            for (ARecord ar : aRecords) {
+                if (su.getInfo().isInRange(ar.getAddress().getHostAddress())) return false;
+            }
+        }
+        return true;
     }
 }

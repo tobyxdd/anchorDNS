@@ -15,11 +15,15 @@ import java.util.ArrayList;
 
 public class ADNSMain {
     public static void main(String[] args) {
-        SimpleLog.log("anchorDNS - By Toby Huang");
+        SimpleLog.log("anchorDNS 2.0 - By Toby Huang");
         Options options = createOptions();
         try {
             CommandLine commandLine = new DefaultParser().parse(options, args);
-            BufferedReader reader = new BufferedReader(new FileReader(commandLine.getOptionValue("c")));
+            if (commandLine.hasOption("h")) {
+                new HelpFormatter().printHelp("anchorDNS", options);
+                return;
+            }
+            BufferedReader reader = new BufferedReader(new FileReader(commandLine.getOptionValue("c", "ChinaCIDR.txt")));
             ArrayList<String> cidrs = new ArrayList<String>();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -30,15 +34,12 @@ public class ADNSMain {
             EventLoopGroup group = new NioEventLoopGroup();
             try {
                 Bootstrap b = new Bootstrap();
-                boolean rm = commandLine.hasOption("r");
-                if (rm) SimpleLog.log("Reverse mode enabled.");
                 if (commandLine.hasOption("n")) {
                     DNSMessageCache.enabled = false;
                     SimpleLog.log("Cache disabled.");
                 }
-                String defDNS = commandLine.getOptionValue("d"), altDNS = commandLine.getOptionValue("a");
-                b.group(group).channel(NioDatagramChannel.class).handler(new ADNSServer(defDNS, altDNS, cidrs.toArray(new String[cidrs.size()]),
-                        rm, commandLine.hasOption("t") ? Integer.parseInt(commandLine.getOptionValue("t")) : 2));
+                String defDNS = commandLine.getOptionValue("d", "114.114.114.114"), altDNS = commandLine.getOptionValue("a", "8.8.8.8");
+                b.group(group).channel(NioDatagramChannel.class).handler(new ADNSServer(defDNS, altDNS, cidrs.toArray(new String[cidrs.size()]), Integer.parseInt(commandLine.getOptionValue("t", "1"))));
                 SimpleLog.log("Using DNS " + defDNS + "/" + altDNS);
                 String serverName = commandLine.getOptionValue("i", "127.0.0.1");
                 String serverPort = commandLine.getOptionValue("p", "53");
@@ -72,11 +73,10 @@ public class ADNSMain {
         Options options = new Options();
         options.addOption(Option.builder("i").longOpt("ip").hasArg().desc("Specify the listening IP. Default: 127.0.0.1").build());
         options.addOption(Option.builder("p").longOpt("port").hasArg().desc("Specify the listening port. Default: 53").build());
-        options.addOption(Option.builder("d").longOpt("defaultDNS").hasArg().desc("Specify the default DNS server.").required().build());
-        options.addOption(Option.builder("a").longOpt("alternativeDNS").hasArg().desc("Specify the alternative DNS server.").required().build());
-        options.addOption(Option.builder("r").longOpt("reverse").desc("Check the alternative DNS first.").build());
-        options.addOption(Option.builder("c").longOpt("cidr").hasArg().desc("Specify the CIDR list.").required().build());
-        options.addOption(Option.builder("t").longOpt("timeout").hasArg().desc("Specify the DNS time out (sec). Default: 2").build());
+        options.addOption(Option.builder("d").longOpt("defaultDNS").hasArg().desc("Specify the default DNS server. Default: 114.114.114.114").build());
+        options.addOption(Option.builder("a").longOpt("alternativeDNS").hasArg().desc("Specify the alternative DNS server. Default: 8.8.8.8").build());
+        options.addOption(Option.builder("c").longOpt("cidr").hasArg().desc("Specify the CIDR list. Default: ChinaCIDR.txt").build());
+        options.addOption(Option.builder("t").longOpt("timeout").hasArg().desc("Specify the DNS time out (sec). Default: 1").build());
         options.addOption(Option.builder("n").longOpt("nocache").desc("Disable results cache.").build());
         options.addOption(Option.builder("h").longOpt("help").desc("Show this help message.").build());
         return options;

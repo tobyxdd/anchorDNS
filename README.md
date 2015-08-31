@@ -8,11 +8,9 @@
 
 anchorDNS ÕıÊÇÎª½â¾ö´ËÎÊÌâ¶øÉè¼Æ£¬Í¨¹ıÏÈ´Ó¹úÄÚDNS½âÎöÓòÃû£¬Èô·¢ÏÖÊÇÖĞ¹úIPÔòÖ±½Ó·µ»Ø½á¹û£¬Èô·ÇÖĞ¹úIPÔò¸ÄÓÃ¾³ÍâDNS½âÎöµÄ·½·¨ ÄÜ¹»¼ÈÍêÈ«±£³Ö¹úÄÚÍøÕ¾µÄ½âÎöÕıÈ· ÓÖ»ñµÃÎŞÎÛÈ¾µÄ¾³ÍâÍøÕ¾DNS²éÑ¯½á¹û¡£**ÓÃ»§Ö»Ğè·Ö±ğÌá¹©Ò»¸ö×Ô¼ºÏ²»¶µÄ¹úÄÚDNSÓë¹úÍâDNSµØÖ·£¬ÓëÒ»¸öÖĞ¹úIP¶ÎµÄCIDR±í£¨ÒÑ×Ô´ø£©**
 
-*Áí¸½"reverse"·´Ä£Ê½£¬½âÊÍ¼ûÏÂÎÄ*
-
 Ê¾Àı¡ª¡ª
-½âÎö www.baidu.com -> ²éÑ¯114.114.114.114 -> ·¢ÏÖÊÇÖĞ¹úIP -> Ö±½ÓÊ¹ÓÃ
-½âÎö twitter.com -> ²éÑ¯114.114.114.114 -> ·¢ÏÖ·ÇÖĞ¹úIP -> Å×Æú½á¹û²éÑ¯8.8.8.8 -> Ê¹ÓÃÕıÈ·ÎŞÎÛÈ¾½á¹û
+½âÎö www.baidu.com -> Í¬Ê±²éÑ¯114.114.114.114(Ö±Á¬)/8.8.8.8(×ßVPN) -> ·¢ÏÖÊÇÖĞ¹úIPÍøÕ¾ -> Ê¹ÓÃÖ±Á¬114.114.114.114µÄ½á¹û
+½âÎö twitter.com -> Í¬Ê±²éÑ¯114.114.114.114(Ö±Á¬)/8.8.8.8(×ßVPN) -> ·¢ÏÖ·ÇÖĞ¹úIPÍøÕ¾ -> Ê¹ÓÃ×ßVPNµÄ8.8.8.8µÄ½á¹û£¨ÎŞÎÛÈ¾£©
 
 #Ê¹ÓÃ×ËÊÆ
 
@@ -21,15 +19,16 @@ anchorDNS ÕıÊÇÎª½â¾ö´ËÎÊÌâ¶øÉè¼Æ£¬Í¨¹ıÏÈ´Ó¹úÄÚDNS½âÎöÓòÃû£¬Èô·¢ÏÖÊÇÖĞ¹úIPÔòÖ±½Ó·
 ²ÎÊıÏê½â¡ª¡ª
 
     usage: anchorDNS
-     -a,--alternativeDNS <arg>   Specify the alternative DNS server.
-     -c,--cidr <arg>             Specify the CIDR list.
-     -d,--defaultDNS <arg>       Specify the default DNS server.
+     -a,--alternativeDNS <arg>   Specify the alternative DNS server. Default:
+                                 8.8.8.8
+     -c,--cidr <arg>             Specify the CIDR list. Default: ChinaCIDR.txt
+     -d,--defaultDNS <arg>       Specify the default DNS server. Default:
+                                 114.114.114.114
      -h,--help                   Show this help message.
      -i,--ip <arg>               Specify the listening IP. Default: 127.0.0.1
      -n,--nocache                Disable results cache.
      -p,--port <arg>             Specify the listening port. Default: 53
-     -r,--reverse                Check the alternative DNS first.
-     -t,--timeout <arg>          Specify the DNS time out (sec). Default: 2
+     -t,--timeout <arg>          Specify the DNS time out (sec). Default: 1
 
     -a Ö¸¶¨¹úÍâDNS·şÎñÆ÷
     -c Ö¸¶¨ÖĞ¹úIP CIDR±í£¨¿ÉÓÃ±¾ÏîÄ¿ÏÂµÄ **ChinaCIDR.txt** »ò [´Ë´¦ÏÂÔØ×îĞÂ°æ][3]£©
@@ -37,12 +36,11 @@ anchorDNS ÕıÊÇÎª½â¾ö´ËÎÊÌâ¶øÉè¼Æ£¬Í¨¹ıÏÈ´Ó¹úÄÚDNS½âÎöÓòÃû£¬Èô·¢ÏÖÊÇÖĞ¹úIPÔòÖ±½Ó·
     -i Ö¸¶¨¼àÌıIP£¨±¾µØÇëÊ¹ÓÃÄ¬ÈÏ127.0.0.1£©
     -n ½ûÓÃ²éÑ¯»º´æ
     -p Ö¸¶¨¼àÌı¶Ë¿Ú
-    -r ·´Ä£Ê½£ºÓÅÏÈ²éÑ¯¹úÍâDNS ·¢ÏÖÖĞ¹úIPºóÔÙ¸ÄÓÃ¹úÄÚDNS **£¨²»½¨ÒéÊ¹ÓÃ£¡£©**
     -t DNS²éÑ¯³¬Ê±Ê±¼ä µ¥Î»£ºÃë Ä¬ÈÏÎª2
 
-±ÈÈç£º `anchorDNS -d 114.114.114.114 -a 8.8.8.8 -c ChinaCIDR.txt`
+¿ÉÒÔÖ±½Ó²»´øÈÎºÎ²ÎÊıÊ¹ÓÃÄ¬ÈÏÖµÊ¹ÓÃ£¬Ò²¿É½øĞĞ×Ô¶¨ÒåÈç£º `anchorDNS -d 1.2.4.8 -a 8.8.4.4 -c ChinaCIDR.txt`
 
-**È»ºóÉèÖÃ»úÆ÷µÄDNS·şÎñÆ÷Îª 127.0.0.1 £¡**
+**È»ºóÉèÖÃ»úÆ÷µÄDNS·şÎñÆ÷Îª 127.0.0.1 **
 
 #¼¼ÊõÏ¸½Ú
 
