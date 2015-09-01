@@ -7,8 +7,6 @@ import io.netty.channel.socket.DatagramPacket;
 import org.apache.commons.net.util.SubnetUtils;
 import org.xbill.DNS.*;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -17,12 +15,14 @@ public class ADNSServer extends SimpleChannelInboundHandler<DatagramPacket> {
     private String defaultDNS_IP, alternativeDNS_IP;
     private String[] CIDRs;
     private int timeout;
+    private boolean useFB;
 
-    public ADNSServer(String defaultDNS_IP, String alternativeDNS_IP, String[] CIDRs, int timeout) throws UnknownHostException {
+    public ADNSServer(String defaultDNS_IP, String alternativeDNS_IP, String[] CIDRs, int timeout, boolean useFB) throws UnknownHostException {
         this.defaultDNS_IP = defaultDNS_IP;
         this.alternativeDNS_IP = alternativeDNS_IP;
         this.CIDRs = CIDRs;
         this.timeout = timeout;
+        this.useFB = useFB;
     }
 
     @Override
@@ -59,18 +59,20 @@ public class ADNSServer extends SimpleChannelInboundHandler<DatagramPacket> {
                     SimpleLog.log("Using default DNS for " + record.getName());
                     writeResult(ctx, record, ddnsResult, msg, true);
                 }
-            } else {
+            } else if (useFB) {
                 SimpleLog.log("Falling back to alternative DNS for " + record.getName());
                 adnsThread.join();
                 adnsResult = adnsRunnable.getRmsg();
-                writeResult(ctx, record, adnsResult, msg, false);
+                writeResult(ctx, record, adnsResult, msg, true);
             }
         }
     }
 
     private void writeResult(ChannelHandlerContext ctx, Record question, Message dnsResult, DatagramPacket msg, boolean writeCache) {
-        if (writeCache) DNSMessageCache.put(question.hashCode(), dnsResult);
-        if (dnsResult != null) ctx.write(new DatagramPacket(Unpooled.copiedBuffer(dnsResult.toWire()), msg.sender()));
+        if (dnsResult != null) {
+            if (writeCache) DNSMessageCache.put(question.hashCode(), dnsResult);
+            ctx.write(new DatagramPacket(Unpooled.copiedBuffer(dnsResult.toWire()), msg.sender()));
+        }
     }
 
     @Override

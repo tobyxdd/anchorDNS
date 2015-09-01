@@ -6,7 +6,7 @@
 
 ÖÚËùÖÜÖªµÄ [CHNRoutes][2] ÏîÄ¿ÄÜ¹»ÐÞ¸ÄÏµÍ³Â·ÓÉ±íÊ¹²¦VPNºó ÖÐ¹úIPÒÀÈ»Ö±½ÓÁ¬½Ó£¬½ö¹úÍâÁ¬½ÓÍ¨¹ýVPNÒÔ·ÀÖ¹¹úÄÚÍøÕ¾Ò²Í¨¹ýVPNÈÆÐÐ¡£È»¶øÎªÁË½â¾öDNSÎÛÈ¾£¬Ò»°ã»áÈÃDNS½âÎöÈ«²¿×ßVPNµ½¹úÍâDNS·þÎñÆ÷£¬Òò´ËÉÏÁËCDN»òÓÐ¹úÍâ·þÎñÆ÷µÄÖÐ¹úÍøÕ¾ ÒÀÈ»»á½âÎöµ½¹úÍâ»ò¹úÄÚ·Ç×î¼Ñ·þÎñÆ÷½µµÍ·ÃÎÊËÙ¶È¡£
 
-anchorDNS ÕýÊÇÎª½â¾ö´ËÎÊÌâ¶øÉè¼Æ£¬Í¨¹ýÏÈ´Ó¹úÄÚDNS½âÎöÓòÃû£¬Èô·¢ÏÖÊÇÖÐ¹úIPÔòÖ±½Ó·µ»Ø½á¹û£¬Èô·ÇÖÐ¹úIPÔò¸ÄÓÃ¾³ÍâDNS½âÎöµÄ·½·¨ ÄÜ¹»¼ÈÍêÈ«±£³Ö¹úÄÚÍøÕ¾µÄ½âÎöÕýÈ· ÓÖ»ñµÃÎÞÎÛÈ¾µÄ¾³ÍâÍøÕ¾DNS²éÑ¯½á¹û¡£**ÓÃ»§Ö»Ðè·Ö±ðÌá¹©Ò»¸ö×Ô¼ºÏ²»¶µÄ¹úÄÚDNSÓë¹úÍâDNSµØÖ·£¬ÓëÒ»¸öÖÐ¹úIP¶ÎµÄCIDR±í£¨ÒÑ×Ô´ø£©**
+anchorDNS ÕýÊÇÎª½â¾ö´ËÎÊÌâ¶øÉè¼Æ£¬Í¨¹ýÏÈ´Ó¹úÄÚDNS½âÎöÓòÃû£¬Èô·¢ÏÖÊÇÖÐ¹úIPÔòÖ±½Ó·µ»Ø½á¹û£¬Èô·ÇÖÐ¹úIPÔò¸ÄÓÃ¾³ÍâDNS½âÎöµÄ·½·¨ ÄÜ¹»¼ÈÍêÈ«±£³Ö¹úÄÚÍøÕ¾µÄ½âÎöÕýÈ· ÓÖ»ñµÃÎÞÎÛÈ¾µÄ¾³ÍâÍøÕ¾DNS²éÑ¯½á¹û¡£
 
 Ê¾Àý¡ª¡ª
 
@@ -26,23 +26,28 @@ anchorDNS ÕýÊÇÎª½â¾ö´ËÎÊÌâ¶øÉè¼Æ£¬Í¨¹ýÏÈ´Ó¹úÄÚDNS½âÎöÓòÃû£¬Èô·¢ÏÖÊÇÖÐ¹úIPÔòÖ±½Ó·
      -c,--cidr <arg>             Specify the CIDR list. Default: ChinaCIDR.txt
      -d,--defaultDNS <arg>       Specify the default DNS server. Default:
                                  114.114.114.114
+     -f,--fallback               Use alternative DNS when default DNS failed.
      -h,--help                   Show this help message.
      -i,--ip <arg>               Specify the listening IP. Default: 127.0.0.1
      -n,--nocache                Disable results cache.
      -p,--port <arg>             Specify the listening port. Default: 53
-     -t,--timeout <arg>          Specify the DNS time out (sec). Default: 1
+     -t,--timeout <arg>          Specify the DNS time out (sec). Default: 2
 
     -a Ö¸¶¨¹úÍâDNS·þÎñÆ÷
-    -c Ö¸¶¨ÖÐ¹úIP CIDR±í£¨¿ÉÓÃ±¾ÏîÄ¿ÏÂµÄ **ChinaCIDR.txt** »ò [´Ë´¦ÏÂÔØ×îÐÂ°æ][3]£©
+    -c Ö¸¶¨ÖÐ¹úIP CIDR±í£¨Ä¬ÈÏÓÃ±¾ÏîÄ¿ÏÂµÄ ChinaCIDR.txt £©
     -d Ö¸¶¨¹úÄÚDNS·þÎñÆ÷
+    -f µ±¹úÄÚDNS³¬Ê±»ò³ö´íÊ±Ò²×ªÖÁ¹úÍâDNS
+    -h ÏÔÊ¾ÉÏÊö°ïÖú
     -i Ö¸¶¨¼àÌýIP£¨±¾µØÇëÊ¹ÓÃÄ¬ÈÏ127.0.0.1£©
     -n ½ûÓÃ²éÑ¯»º´æ
     -p Ö¸¶¨¼àÌý¶Ë¿Ú
     -t DNS²éÑ¯³¬Ê±Ê±¼ä µ¥Î»£ºÃë Ä¬ÈÏÎª2
 
-¿ÉÒÔÖ±½Ó²»´øÈÎºÎ²ÎÊýÊ¹ÓÃÄ¬ÈÏÖµÊ¹ÓÃ£¬Ò²¿É½øÐÐ×Ô¶¨ÒåÈç£º `anchorDNS -d 1.2.4.8 -a 8.8.4.4 -c ChinaCIDR.txt`
+¿ÉÒÔÖ±½Ó²»´øÈÎºÎ²ÎÊýÊ¹ÓÃÄ¬ÈÏÖµÊ¹ÓÃ£¬Ò²¿É½øÐÐ×Ô¶¨ÒåÈç£º `anchorDNS -d 1.2.4.8 -a 8.8.4.4 -f -c ChinaCIDR_NEW.txt`
 
-**È»ºóÉèÖÃ»úÆ÷µÄDNS·þÎñÆ÷Îª 127.0.0.1 **
+**È»ºóÉèÖÃ»úÆ÷µÄDNS·þÎñÆ÷Îª 127.0.0.1**
+
+ÖÐ¹úIP¶ÎµÄCIDR±í¿ÉÔÚ[´Ë´¦ÏÂÔØ¸üÐÂ][3]
 
 #¼¼ÊõÏ¸½Ú
 

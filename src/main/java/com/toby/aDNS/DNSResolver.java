@@ -22,7 +22,7 @@ public class DNSResolver implements Runnable {
         try {
             rmsg = resolver.send(qmsg);
         } catch (IOException e) {
-            SimpleLog.log("An error occurred while resolving: " + e.toString());
+            SimpleLog.log("Failed to resolve " + qmsg.getQuestion().getName() + ": " + e.toString());
         }
     }
 
