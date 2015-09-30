@@ -2,7 +2,6 @@ package com.toby.aDNS;
 
 import org.xbill.DNS.ExtendedResolver;
 import org.xbill.DNS.Message;
-import org.xbill.DNS.SimpleResolver;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
