@@ -33,10 +33,10 @@ public class LookupHandler implements Runnable {
             Message dnsMsg = new Message(packet.getData());
             Record record = dnsMsg.getQuestion();
             if (record != null) {
-                SimpleLog.log("Resolving " + record.getName() + " (" + Type.string(record.getType()) + ")");
+                SimpleLog.log("Resolving " + record.getName() + " (" + Type.string(record.getType()) + ")", true);
                 Message cm = DNSMessageCache.get(record.hashCode());
                 if (cm != null) {
-                    SimpleLog.log("Using cached result for " + record.getName());
+                    SimpleLog.log("Using cached result for " + record.getName(), true);
                     cm.getHeader().setID(dnsMsg.getHeader().getID());
                     writeResult(record, cm, false);
                     return;
@@ -52,16 +52,16 @@ public class LookupHandler implements Runnable {
                 if (ddnsResult != null) {
                     Record[] ddnsRecords = ddnsResult.getSectionArray(Section.ANSWER);
                     if (useAltDNS(ddnsRecords)) {
-                        SimpleLog.log("Using alternative DNS for " + record.getName());
+                        SimpleLog.log("Using alternative DNS for " + record.getName(), true);
                         adnsThread.join();
                         adnsResult = adnsRunnable.getRmsg();
                         writeResult(record, adnsResult, true);
                     } else {
-                        SimpleLog.log("Using default DNS for " + record.getName());
+                        SimpleLog.log("Using default DNS for " + record.getName(), true);
                         writeResult(record, ddnsResult, true);
                     }
                 } else if (useFB) {
-                    SimpleLog.log("Falling back to alternative DNS for " + record.getName());
+                    SimpleLog.log("Falling back to alternative DNS for " + record.getName(), true);
                     adnsThread.join();
                     adnsResult = adnsRunnable.getRmsg();
                     writeResult(record, adnsResult, true);

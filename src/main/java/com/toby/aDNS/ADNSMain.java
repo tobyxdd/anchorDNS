@@ -28,6 +28,10 @@ public class ADNSMain {
                 new HelpFormatter().printHelp("anchorDNS", options);
                 return;
             }
+            if (commandLine.hasOption("v")) {
+                SimpleLog.showVerbose = true;
+                SimpleLog.log("Verbose mode enabled.");
+            }
             File clfile = new File("ChinaCIDR.txt");
             if (commandLine.getOptionValue("c") == null && !clfile.exists()) {
                 SimpleLog.log("CIDR list not found, downloading from " + cidrlistURL);
@@ -69,6 +73,7 @@ public class ADNSMain {
         options.addOption(Option.builder("t").longOpt("timeout").hasArg().desc("Specify the DNS time out (sec). Default: " + dtimeout).build());
         options.addOption(Option.builder("n").longOpt("nocache").desc("Disable results cache.").build());
         options.addOption(Option.builder("f").longOpt("fallback").desc("Use alternative DNS when default DNS failed.").build());
+        options.addOption(Option.builder("v").longOpt("verbose").desc("Verbose mode.").build());
         options.addOption(Option.builder("h").longOpt("help").desc("Show this help message.").build());
         return options;
     }
