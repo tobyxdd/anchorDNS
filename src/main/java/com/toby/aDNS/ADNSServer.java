@@ -5,6 +5,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ADNSServer implements Runnable {
 
@@ -29,11 +31,12 @@ public class ADNSServer implements Runnable {
     @Override
     public void run() {
         byte[] buf = new byte[512];
+        ExecutorService service = Executors.newCachedThreadPool();
         while (true) {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             try {
                 socket.receive(packet);
-                new Thread(new LookupHandler(defaultDNS_IP, alternativeDNS_IP, CIDRs, timeout, useFB, packet, socket)).start();
+                service.execute(new LookupHandler(defaultDNS_IP, alternativeDNS_IP, CIDRs, timeout, useFB, packet, socket));
             } catch (IOException e) {
                 SimpleLog.log("Socket error: " + e.toString());
             }

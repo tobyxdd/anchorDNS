@@ -7,8 +7,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class LookupHandler implements Runnable {
+
+    private static ExecutorService lookupService = Executors.newCachedThreadPool();
 
     private String defaultDNS_IP, alternativeDNS_IP;
     private String[] CIDRs;
@@ -42,19 +47,16 @@ public class LookupHandler implements Runnable {
                     return;
                 }
                 Message ddnsResult, adnsResult;
-                DNSResolver ddnsRunnable = new DNSResolver(timeout, dnsMsg, defaultDNS_IP), adnsRunnable = new DNSResolver(timeout, dnsMsg, alternativeDNS_IP);
-                Thread ddnsThread = new Thread(ddnsRunnable);
-                Thread adnsThread = new Thread(adnsRunnable);
-                ddnsThread.start();
-                adnsThread.start();
-                ddnsThread.join();
-                ddnsResult = ddnsRunnable.getRmsg();
+                DNSResolver ddnsCallable = new DNSResolver(timeout, dnsMsg, defaultDNS_IP),
+                        adnsCallable = new DNSResolver(timeout, dnsMsg, alternativeDNS_IP);
+                Future<Message> ddnsFuture = lookupService.submit(ddnsCallable);
+                Future<Message> adnsFuture = lookupService.submit(adnsCallable);
+                ddnsResult = ddnsFuture.get();
                 if (ddnsResult != null) {
                     Record[] ddnsRecords = ddnsResult.getSectionArray(Section.ANSWER);
                     if (useAltDNS(ddnsRecords)) {
                         SimpleLog.log("Using alternative DNS for " + record.getName(), true);
-                        adnsThread.join();
-                        adnsResult = adnsRunnable.getRmsg();
+                        adnsResult = adnsFuture.get();
                         writeResult(record, adnsResult, true);
                     } else {
                         SimpleLog.log("Using default DNS for " + record.getName(), true);
@@ -62,8 +64,7 @@ public class LookupHandler implements Runnable {
                     }
                 } else if (useFB) {
                     SimpleLog.log("Falling back to alternative DNS for " + record.getName(), true);
-                    adnsThread.join();
-                    adnsResult = adnsRunnable.getRmsg();
+                    adnsResult = adnsFuture.get();
                     writeResult(record, adnsResult, true);
                 }
             }
