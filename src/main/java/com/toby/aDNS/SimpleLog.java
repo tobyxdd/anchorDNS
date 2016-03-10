@@ -8,7 +8,7 @@ public class SimpleLog {
     private SimpleLog() {
     }
 
-    private static DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+    private static DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     public static void log(String argStr) {
         System.out.println("[" + LocalDateTime.now().format(dtFormatter) + "] " + argStr);
