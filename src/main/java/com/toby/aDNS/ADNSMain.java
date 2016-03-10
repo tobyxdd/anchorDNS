@@ -10,7 +10,8 @@ import java.util.ArrayList;
 public class ADNSMain {
 
     private static final String
-            ddefDNS = "114.114.114.114,114.114.115.115", daltDNS = "8.8.8.8,8.8.4.4",
+            ddefDNS = "119.29.29.29,182.254.116.116,223.5.5.5,223.6.6.6",
+            daltDNS = "8.8.8.8,8.8.4.4,208.67.222.222,208.67.220.220",
             dserverName = "127.0.0.1", dserverPort = "53", dtimeout = "2";
 
     public static void main(String[] args) throws UnknownHostException {
