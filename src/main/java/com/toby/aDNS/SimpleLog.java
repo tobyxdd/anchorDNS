@@ -17,7 +17,7 @@ public class SimpleLog {
     }
 
     public static void log(String argStr, boolean isVerbose) {
-        if (!isVerbose || (isVerbose && showVerbose))
+        if (!isVerbose || showVerbose)
             System.out.println("[" + LocalDateTime.now().format(dtFormatter) + "] " + argStr);
     }
 }
